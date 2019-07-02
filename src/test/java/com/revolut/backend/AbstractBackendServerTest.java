@@ -29,7 +29,7 @@ public abstract class AbstractBackendServerTest {
 
     @BeforeClass
     public static void setUp() {
-        server = new BackendServer(8080);
+        server = new BackendServer(9999);
         server.start();
 
         webClient = WebClient.create(Vertx.vertx());
