@@ -74,6 +74,8 @@ public abstract class AbstractBackendServerTest {
                 logger.info("Response received:\n" +
                         "\tcode = '{}'\n" +
                         "\tbody = '{}'", r.result().statusCode(), r.result().body().toString());
+            } else {
+                logger.error("Error occurred: {}", t.toString());
             }
         });
 
