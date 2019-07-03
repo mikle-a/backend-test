@@ -67,7 +67,10 @@ public abstract class AbstractBackendServerTest {
                 "\tpath = '{}',\n" +
                 "\theaders = '{}'", method, path, request.headers().entries());
 
-        request.send(f::complete);
+        request.send(resp -> {
+            logger.info("vertx Response received: {}", resp);
+            f.complete(resp);
+        });
 
         f.whenComplete((r, t) -> {
             if (r != null) {
