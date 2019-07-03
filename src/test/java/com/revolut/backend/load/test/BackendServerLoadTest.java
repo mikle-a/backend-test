@@ -57,7 +57,7 @@ public class BackendServerLoadTest extends AbstractBackendServerTest {
         final JsonObject metrics = response.body().toJsonObject();
         assertEquals(Long.valueOf(attempts), metrics.getLong("http./account/1/transfer.PATCH.count"));
         final long percentile95ms = TimeUnit.NANOSECONDS.toMillis(metrics.getLong("http./account/1/transfer.PATCH.95percentile"));
-        assertTrue("95 percentile should be less 50ms", percentile95ms < 50);
+        assertTrue("95 percentile should be less 50ms, while actual value is " + percentile95ms, percentile95ms < 50);
     }
 
 }

@@ -47,14 +47,14 @@ public abstract class AbstractBackendServerTest {
 
     protected HttpResponse<Buffer> sendSync(HttpMethod method, String path, Long userId) {
         try {
-            return sendAsync(method, path, userId).get().result();
+            return sendAsync(method, path, userId).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected CompletableFuture<AsyncResult<HttpResponse<Buffer>>> sendAsync(HttpMethod method, String path, Long userId) {
-        final CompletableFuture<AsyncResult<HttpResponse<Buffer>>> f = new CompletableFuture<>();
+    protected CompletableFuture<HttpResponse<Buffer>> sendAsync(HttpMethod method, String path, Long userId) {
+        final CompletableFuture<HttpResponse<Buffer>> f = new CompletableFuture<>();
 
         final HttpRequest<Buffer> request = webClient.request(method, server.port(), "127.0.0.1", path);
 
@@ -67,16 +67,19 @@ public abstract class AbstractBackendServerTest {
                 "\tpath = '{}',\n" +
                 "\theaders = '{}'", method, path, request.headers().entries());
 
-        request.send(resp -> {
-            logger.info("vertx Response received: {}", resp);
-            f.complete(resp);
+        request.send(response -> {
+            if (response.failed()) {
+               f.completeExceptionally(response.cause());
+            } else {
+                f.complete(response.result());
+            }
         });
 
         f.whenComplete((r, t) -> {
             if (r != null) {
                 logger.info("Response received:\n" +
                         "\tcode = '{}'\n" +
-                        "\tbody = '{}'", r.result().statusCode(), r.result().body().toString());
+                        "\tbody = '{}'", r.statusCode(), r.body().toString());
             } else {
                 logger.error("Error occurred: {}", t.toString());
             }

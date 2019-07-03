@@ -11,6 +11,7 @@ import com.revolut.backend.db.Database;
 import com.revolut.backend.db.impl.H2Database;
 import com.revolut.backend.handler.*;
 import com.revolut.backend.utils.Args;
+import com.revolut.backend.utils.Utils;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
@@ -65,7 +66,7 @@ public class BackendServer {
     }
 
     public void stop() {
-        httpServer.close();
+        Utils.<Void>await(h -> httpServer.close(h));
         database.stop();
     }
 
@@ -83,7 +84,7 @@ public class BackendServer {
         initRoute(router.route(HttpMethod.GET, "/metrics"), new ExposeMetricsHandler(metricRegistry));
         initRoute(router.route(), new EndpointNotFoundHandler());
 
-        httpServer.requestHandler(router).listen(port);
+        Utils.<HttpServer>await(h -> httpServer.requestHandler(router).listen(port, h));
 
         logger.info("HTTP server is ready to accept traffic on port {}", port);
     }

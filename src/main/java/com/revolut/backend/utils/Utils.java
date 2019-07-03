@@ -3,6 +3,8 @@ package com.revolut.backend.utils;
 import io.vertx.ext.web.api.validation.ValidationException;
 
 import java.math.BigDecimal;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 public class Utils {
 
@@ -20,6 +22,16 @@ public class Utils {
         } catch (NumberFormatException e) {
             throw ValidationException.ValidationExceptionFactory
                     .generateNotMatchValidationException("Value is not a valid amount");
+        }
+    }
+
+    public static <T> T await(Consumer<FutureHandler<T>> func) {
+        final FutureHandler<T> h = new FutureHandler<>();
+        func.accept(h);
+        try {
+            return h.future().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
